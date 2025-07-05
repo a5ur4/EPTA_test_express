@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { validateDataMiddleware } from '../middlewares/validateData.middleware';
-import { createVehicleSchema } from '../schemas/vehicle.schema';
+import { createVehicleSchema, updateVehicleStatusSchema } from '../schemas/vehicle.schema';
 import { 
     createVehicleController, 
     getAllVehiclesController,
     getVehicleByIdController,
     getVehiclesByUserIdController,
     updateVehicleController,
-    deleteVehicleController
+    deleteVehicleController,
+    patchVehicleStatusController
 } from '../controllers/vehicle.controller';
 import { protect } from '../middlewares/protect.middleware';
 
@@ -43,6 +44,13 @@ vehicleRoutes.put(
     protect,
     validateDataMiddleware(createVehicleSchema) as any,
     updateVehicleController
+);
+
+vehicleRoutes.patch(
+    '/:id/status',
+    protect,
+    validateDataMiddleware(updateVehicleStatusSchema) as any,
+    patchVehicleStatusController
 );
 
 vehicleRoutes.delete(

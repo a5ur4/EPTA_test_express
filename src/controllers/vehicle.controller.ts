@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { CreateVehicleInput } from '../schemas/vehicle.schema';
-import { createVehicleService, getAllVehiclesService, getVehicleByIdService, getVehiclesByUserIdService, updateVehicleService, deleteVehicleService } from '../services/vehicle.service';
+import { CreateVehicleInput, UpdateVehicleStatusData } from '../schemas/vehicle.schema';
+import { createVehicleService, getAllVehiclesService, getVehicleByIdService, getVehiclesByUserIdService, updateVehicleService, deleteVehicleService, patchVehicleStatusService } from '../services/vehicle.service';
 import { AuthenticatedRequest } from '../interfaces/auth.interface';
 
 export const createVehicleController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -81,6 +81,23 @@ export const updateVehicleController = async (req: AuthenticatedRequest, res: Re
         res.status(400).json({ 
             success: false,
             error: error instanceof Error ? error.message : 'Vehicle update failed' 
+        });
+    }
+};
+
+export const patchVehicleStatusController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const statusData: UpdateVehicleStatusData = req.body;
+        const updatedVehicle = await patchVehicleStatusService(req.params.id, statusData.status);
+        res.status(200).json({
+            success: true,
+            message: 'Vehicle status updated successfully',
+            data: updatedVehicle
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            error: error instanceof Error ? error.message : 'Vehicle status update failed'
         });
     }
 };

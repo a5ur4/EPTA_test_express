@@ -1,4 +1,5 @@
 import { prisma } from '../config/database';
+import { Status } from '../generated/prisma';
 import { CreateVehicleData } from '../schemas/vehicle.schema';
 
 export const createVehicleService = async (data: CreateVehicleData) => {
@@ -68,6 +69,19 @@ export const updateVehicleService = async (id: string, data: CreateVehicleData) 
         }
     });
 
+    return updatedVehicle;
+};
+
+export const patchVehicleStatusService = async (id: string, status: Status) => {
+    if (!Object.values(Status).includes(status)) {
+        throw new Error('Invalid status value');
+    }
+    const updatedVehicle = await prisma.vehicle.update({
+        where: { id },
+        data: {
+            status: status
+        }
+    });
     return updatedVehicle;
 };
 
