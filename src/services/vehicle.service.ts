@@ -41,6 +41,21 @@ export const getVehicleByIdService = async (id: string) => {
     return vehicle;
 };
 
+export const getVehiclesByUserIdService = async (userId: string) => {
+    const vehicles = await prisma.vehicle.findMany({
+        where: { userId },
+        include: {
+            user: false
+        }
+    });
+
+    if (vehicles.length === 0) {
+        throw new Error('No vehicles found for this user');
+    }
+
+    return vehicles;
+};
+
 export const updateVehicleService = async (id: string, data: CreateVehicleData) => {
     const updatedVehicle = await prisma.vehicle.update({
         where: { id },

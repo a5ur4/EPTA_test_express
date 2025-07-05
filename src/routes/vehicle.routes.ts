@@ -5,6 +5,7 @@ import {
     createVehicleController, 
     getAllVehiclesController,
     getVehicleByIdController,
+    getVehiclesByUserIdController,
     updateVehicleController,
     deleteVehicleController
 } from '../controllers/vehicle.controller';
@@ -29,6 +30,12 @@ vehicleRoutes.get(
     '/:id',
     protect,
     getVehicleByIdController
+);
+
+vehicleRoutes.get(
+    '/user/:userid',
+    protect,
+    getVehiclesByUserIdController
 );
 
 vehicleRoutes.put(

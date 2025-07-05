@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { CreateVehicleInput } from '../schemas/vehicle.schema';
-import { createVehicleService, getAllVehiclesService, getVehicleByIdService, updateVehicleService, deleteVehicleService } from '../services/vehicle.service';
+import { createVehicleService, getAllVehiclesService, getVehicleByIdService, getVehiclesByUserIdService, updateVehicleService, deleteVehicleService } from '../services/vehicle.service';
 import { AuthenticatedRequest } from '../interfaces/auth.interface';
 
 export const createVehicleController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
@@ -50,6 +50,21 @@ export const getVehicleByIdController = async (req: AuthenticatedRequest, res: R
         res.status(404).json({ 
             success: false,
             error: error instanceof Error ? error.message : 'Vehicle not found' 
+        });
+    }
+};
+
+export const getVehiclesByUserIdController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const vehicles = await getVehiclesByUserIdService(req.user!.id);
+        res.status(200).json({
+            success: true,
+            data: vehicles
+        });
+    } catch (error) {
+        res.status(404).json({ 
+            success: false,
+            error: error instanceof Error ? error.message : 'No vehicles found for this user' 
         });
     }
 };
