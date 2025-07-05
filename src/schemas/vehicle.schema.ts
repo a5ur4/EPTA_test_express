@@ -8,11 +8,15 @@ export const createVehicleSchema = z.object({
         required_error: "Tipo é obrigatório.",
         invalid_type_error: "Tipo deve ser um dos seguintes: CARRO, MOTO, CAMINHAO, ONIBUS, VAN",
     }),
-    color: z.string({ required_error: "Cor é obrigatória." }).min(3, "Cor deve ter no mínimo 3 caracteres.").optional(),
-    userId: z.string({ required_error: "ID do usuário é obrigatório." })
+    color: z.string({ required_error: "Cor é obrigatória." }).min(3, "Cor deve ter no mínimo 3 caracteres.").optional()
 });
 
 export const updateVehicleSchema = createVehicleSchema.partial();
 
-export type CreateVehicleData = z.infer<typeof createVehicleSchema>;
+export const createVehicleWithUserSchema = createVehicleSchema.extend({
+    userId: z.string({ required_error: "ID do usuário é obrigatório." })
+});
+
+export type CreateVehicleData = z.infer<typeof createVehicleWithUserSchema>;
 export type UpdateVehicleData = z.infer<typeof updateVehicleSchema>;
+export type CreateVehicleInput = z.infer<typeof createVehicleSchema>;

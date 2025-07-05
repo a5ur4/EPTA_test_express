@@ -16,7 +16,7 @@ export const createVehicleService = async (data: CreateVehicleData) => {
     return newVehicle;
 };
 
-export const listAllVehiclesService = async () => {
+export const getAllVehiclesService = async () => {
     const vehicles = await prisma.vehicle.findMany({
         include: {
             user: false

@@ -1,12 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        id: string;
-        email: string;
-    };
-}
+import bcrypt from 'bcryptjs';
+import { AuthenticatedRequest } from '../interfaces/auth.interface';
 
 export const protect = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     try {
@@ -68,4 +63,26 @@ export const protect = (req: AuthenticatedRequest, res: Response, next: NextFunc
             message: 'Erro interno do servidor.'
         });
     }
+};
+
+export const encryptPassword = async (password: string): Promise<string> => {
+    const saltRounds = 12;
+    return await bcrypt.hash(password, saltRounds);
+};
+
+export const comparePassword = async (password: string, hash: string): Promise<boolean> => {
+    return await bcrypt.compare(password, hash);
+};
+
+export const generateToken = (user: { id: string; email: string }): string => {
+    const JWT_SECRET = process.env.JWT_SECRET;
+    if (!JWT_SECRET) {
+        throw new Error('JWT_SECRET is not defined');
+    }
+
+    return jwt.sign(
+        { id: user.id, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+    );
 };
