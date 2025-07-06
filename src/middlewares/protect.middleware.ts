@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { AuthenticatedRequest } from '../interfaces/auth.interface';
+import { tokenBlacklist } from '../utils/tokenBlacklist';
 
 export const protect = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
     try {
@@ -15,6 +16,14 @@ export const protect = (req: AuthenticatedRequest, res: Response, next: NextFunc
             res.status(401).json({
                 success: false,
                 message: 'Acesso negado. Token não fornecido.'
+            });
+            return;
+        }
+
+        if (tokenBlacklist.isTokenBlacklisted(token)) {
+            res.status(401).json({
+                success: false,
+                message: 'Token inválido. Faça login novamente.'
             });
             return;
         }
@@ -39,6 +48,8 @@ export const protect = (req: AuthenticatedRequest, res: Response, next: NextFunc
             id: decoded.id,
             email: decoded.email
         };
+
+        req.token = token;
 
         next();
     } catch (error) {

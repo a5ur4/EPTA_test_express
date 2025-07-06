@@ -4,6 +4,8 @@ import { registerSchema, loginSchema, createUserSchema } from '../schemas/user.s
 import { 
     registerController,
     loginController,
+    logoutController,
+    getCurrentUserController,
     getAllUsersController,
     getUserByIdController,
     updateUserController,
@@ -23,6 +25,18 @@ userRoutes.post(
     '/login',
     validateDataMiddleware(loginSchema) as any,
     loginController
+);
+
+userRoutes.post(
+    '/logout',
+    protect,
+    logoutController
+);
+
+userRoutes.get(
+    '/me',
+    protect,
+    getCurrentUserController
 );
 
 userRoutes.get(

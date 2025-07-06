@@ -1,12 +1,15 @@
 import { Request, Response } from 'express';
 import { RegisterData, LoginData } from '../schemas/user.schema';
+import { AuthenticatedRequest } from '../interfaces/auth.interface';
 import { 
     registerUserService, 
     loginUserService, 
     getAllUsersService,
     getUserByIdService,
     updateUserService,
-    deleteUserService
+    deleteUserService,
+    getCurrentUserService,
+    logoutUserService
 } from '../services/user.service';
 
 export const registerController = async (req: Request, res: Response): Promise<void> => {
@@ -45,7 +48,46 @@ export const loginController = async (req: Request, res: Response): Promise<void
     }
 };
 
-export const getAllUsersController = async (req: Request, res: Response): Promise<void> => {
+export const logoutController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        if (!req.token) {
+            res.status(400).json({
+                success: false,
+                error: 'No token found'
+            });
+            return;
+        }
+
+        await logoutUserService(req.token);
+        
+        res.status(200).json({
+            success: true,
+            message: 'Logout successful'
+        });
+    } catch (error) {
+        res.status(500).json({ 
+            success: false,
+            error: error instanceof Error ? error.message : 'Logout failed' 
+        });
+    }
+};
+
+export const getCurrentUserController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    try {
+        const user = await getCurrentUserService(req.user!.id);
+        res.status(200).json({
+            success: true,
+            data: user
+        });
+    } catch (error) {
+        res.status(404).json({
+            success: false,
+            error: error instanceof Error ? error.message : 'User not found'
+        });
+    }
+};
+
+export const getAllUsersController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const users = await getAllUsersService();
         
@@ -61,7 +103,7 @@ export const getAllUsersController = async (req: Request, res: Response): Promis
     }
 };
 
-export const getUserByIdController = async (req: Request, res: Response): Promise<void> => {
+export const getUserByIdController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const user = await getUserByIdService(req.params.id);
         
@@ -77,7 +119,7 @@ export const getUserByIdController = async (req: Request, res: Response): Promis
     }
 };
 
-export const updateUserController = async (req: Request, res: Response): Promise<void> => {
+export const updateUserController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         const updatedUser = await updateUserService(req.params.id, req.body);
         
@@ -94,7 +136,7 @@ export const updateUserController = async (req: Request, res: Response): Promise
     }
 };
 
-export const deleteUserController = async (req: Request, res: Response): Promise<void> => {
+export const deleteUserController = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     try {
         await deleteUserService(req.params.id);
         

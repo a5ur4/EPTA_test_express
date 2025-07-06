@@ -1,6 +1,7 @@
 import { prisma } from "../config/database";
 import { CreateUserData, LoginData, RegisterData } from "../schemas/user.schema";
 import { encryptPassword, comparePassword, generateToken } from "../middlewares/protect.middleware";
+import { tokenBlacklist } from "../utils/tokenBlacklist";
 
 export const registerUserService = async (data: RegisterData) => {
     const existingUser = await prisma.user.findUnique({
@@ -62,6 +63,23 @@ export const loginUserService = async (data: LoginData) => {
         },
         token
     };
+};
+
+export const getCurrentUserService = async (userId: string) => {
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            createdAt: true,
+            updatedAt: true
+        },
+    });
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user;
 };
 
 export const getAllUsersService = async () => {
@@ -130,4 +148,12 @@ export const deleteUserService = async (id: string) => {
     });
 
     return deletedUser;
+};
+
+export const logoutUserService = async (token: string) => {
+    tokenBlacklist.addToken(token);
+    
+    return {
+        message: 'Logout successful'
+    };
 };
